@@ -1,31 +1,33 @@
-name: Rodar Bot Moodle
+import os
+import requests
 
-on:
-  workflow_dispatch:   # Permite rodar manualmente
-  schedule:
-    - cron: "0 12 * * *"   # Opcional: roda todo dia às 12:00
+def enviar_mensagem():
+    # ===== VARIÁVEIS (do GitHub Secrets ou local) =====
+    BOT_TOKEN = os.environ.get("TELEGRAM_TOKEN")
+    CHAT_ID = os.environ.get("CHAT_ID")
 
-jobs:
-  bot:
-    runs-on: ubuntu-latest
+    if not BOT_TOKEN or not CHAT_ID:
+        print("Erro: BOT_TOKEN ou CHAT_ID não encontrados!")
+        return
 
-    steps:
-      - name: Baixar código
-        uses: actions/checkout@v4
+    # ===== MENSAGEM =====
+    mensagem = "Oi 👋"
 
-      - name: Instalar Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+    # ===== ENVIO =====
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    response = requests.post(
+        url,
+        data={
+            "chat_id": CHAT_ID,
+            "text": mensagem
+        }
+    )
 
-      - name: Instalar dependências
-        run: |
-          pip install selenium requests webdriver-manager
+    if response.status_code == 200:
+        print("Mensagem enviada com sucesso!")
+    else:
+        print(f"Erro ao enviar mensagem: {response.text}")
 
-      - name: Executar bot
-        env:
-          LOGIN_USER: ${{ secrets.LOGIN_USER }}
-          LOGIN_PASS: ${{ secrets.LOGIN_PASS }}
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          CHAT_ID: ${{ secrets.CHAT_ID }}
-        run: python bot.py
+# ===== EXECUTA AO RODAR O ARQUIVO =====
+if __name__ == "__main__":
+    enviar_mensagem()
