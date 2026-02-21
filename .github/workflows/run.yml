@@ -1,3 +1,31 @@
-git add .github/workflows/run.yml
-git commit -m "Adiciona workflow do bot"
-git push
+name: Rodar Bot Moodle
+
+on:
+  workflow_dispatch:   # Permite rodar manualmente
+  schedule:
+    - cron: "0 12 * * *"   # Opcional: roda todo dia às 12:00
+
+jobs:
+  bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        run: |
+          pip install selenium requests webdriver-manager
+
+      - name: Executar bot
+        env:
+          LOGIN_USER: ${{ secrets.LOGIN_USER }}
+          LOGIN_PASS: ${{ secrets.LOGIN_PASS }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: python bot.py
