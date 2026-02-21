@@ -1,0 +1,3 @@
+git add .github/workflows/run.yml
+git commit -m "Adiciona workflow do bot"
+git push
